@@ -89,6 +89,8 @@ Deploy `kstaken/apache2` image and host some simple static content in document r
 
 ```bash
 docker pull kstaken/apache2
+OR
+docker pull httpd
 ```
 
 ---
