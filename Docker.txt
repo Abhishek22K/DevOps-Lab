@@ -1,0 +1,294 @@
+INSTALLATION (Ubuntu)
+
+sudo snap install docker
+docker --version
+sudo groupadd docker
+sudo usermod -aG docker $(whoami)
+sudo reboot
+docker ps
+
+---
+
+BASIC DOCKER COMMANDS
+
+Check Docker
+
+docker version
+
+---
+
+Images
+
+docker images
+docker pull nginx:latest
+docker pull ubuntu
+
+---
+
+Run Container
+
+docker run ubuntu
+docker run -it ubuntu
+docker run -dit ubuntu
+docker run -d -p 8080:80 nginx
+docker run -d --name test -p 8080:80 nginx:latest
+docker run -it ubuntu
+docker run -dit --name webserver nginx
+docker run --rm alpine sh -c "echo 'hello world'"
+
+---
+
+Container Management
+
+docker ps
+docker ps -a
+docker stop test
+docker rm test
+docker stop <container_id>
+docker rm <container_id>
+docker stop $(docker ps -a -q)
+docker rm $(docker ps -a -q)
+
+---
+
+Execute Inside Container
+
+docker exec -it test /bin/bash
+docker exec -it <container_id> /bin/bash
+
+---
+
+Logs
+
+docker logs <container>
+docker logs -f <container>
+docker logs --tail 10 <container>
+docker logs -t <container>
+
+---
+
+Naming & Rename
+
+docker run --name myubuntu ubuntu
+docker rename old_name new_name
+
+---
+
+IMAGE COMMANDS
+
+docker build -t test:1.0 .
+docker build -t my-hello-python .
+docker build -t python-sum-app .
+docker images
+docker rmi ubuntu
+docker rmi test:1.0
+
+---
+
+SAVE & LOAD IMAGE
+
+docker save ubuntu -o ubuntu.tar
+docker load -i ubuntu.tar
+
+---
+
+CONTAINER LIFECYCLE
+
+docker run ubuntu
+docker run -it ubuntu
+docker run -dit ubuntu
+docker exec -it <id> /bin/bash
+docker stop <id>
+docker ps
+docker ps -a
+
+---
+
+PRUNE COMMANDS
+
+docker container prune
+docker image prune -a
+
+---
+
+INSPECT
+
+docker inspect <container_id>
+docker inspect <container_name>
+docker inspect ubuntu
+docker inspect -f "{{.NetworkSettings.IPAddress}}" <container>
+
+---
+
+NETWORKING
+
+Basic
+
+docker run -d -p 8080:80 nginx
+
+---
+
+Create Network
+
+docker network create custom
+docker network ls
+docker network inspect custom
+
+---
+
+Run in Network
+
+docker run -it --network custom --name busybox1 busybox
+docker run -it --network custom --name busybox2 busybox
+
+---
+
+Real Example
+
+docker run -d --name mysql-db -e MYSQL_ROOT_PASSWORD=root -e MYSQL_DATABASE=school -p 3306:3306 mysql:8
+docker build -t student-app .
+docker run --name app student-app
+docker stop app
+docker stop mysql-db
+docker container prune
+
+---
+
+With Custom Network
+
+docker network create mynet
+docker run -d --network mynet --name mysql-db -e MYSQL_ROOT_PASSWORD=root -e MYSQL_DATABASE=school mysql:8
+docker run --network mynet --name app student-app
+docker exec -it mysql-db mysql -uroot -proot
+
+---
+
+VOLUMES
+
+Create & Manage
+
+docker volume create myvol
+docker volume ls
+docker volume inspect myvol
+docker volume rm myvol
+docker volume prune
+
+---
+
+Run with Volume
+
+docker run -d --name my-mysql -e MYSQL_ROOT_PASSWORD=root123 -v mysql-data:/var/lib/mysql -p 3306:3306 mysql:8
+
+---
+
+Without Volume (Data Loss Example)
+
+docker run -d --name my-mysql -e MYSQL_ROOT_PASSWORD=root123 -p 3306:3306 mysql:8
+docker stop my-mysql
+docker rm my-mysql
+
+---
+
+NGINX WITH VOLUME
+
+mkdir webpages
+echo "Hello" > webpages/index.html
+
+# Windows
+docker run -p 8080:80 --name another_nginx -v %cd%/webpages:/usr/share/nginx/html -d nginx
+
+# Linux
+docker run -p 8080:80 --name another_nginx -v ${PWD}/webpages:/usr/share/nginx/html -d nginx
+
+docker exec -it another_nginx /bin/bash
+cat /usr/share/nginx/html/index.html
+
+---
+
+PYTHON DOCKER
+
+mkdir ~/docker_python_hello
+docker build -t my-hello-python .
+docker run my-hello-python
+
+---
+
+JAVA DOCKER
+
+docker build -t docker-id/cdac-java:1.0 .
+docker run docker-id/cdac-java:1.0
+
+---
+
+PYTHON SUM APP
+
+docker build -t python-sum-app .
+docker run -it python-sum-app
+
+---
+
+C PROGRAM DOCKER
+
+docker build -t my-ditiss-c .
+docker run -it my-ditiss-c
+
+---
+
+DOCKER HUB
+
+docker login
+docker tag my-hello-python your-id/my-hello-python:1.0
+docker push your-id/my-hello-python:1.0
+
+---
+
+TOMCAT
+
+docker run -dit --rm --name tomcat-container -p 7777:8080 tomcat:8.0
+docker exec -it tomcat-container /bin/bash
+
+---
+
+HTTPD
+
+docker run -dit --name web5 -p 7777:80 httpd
+docker cp index.html web5:/usr/local/apache2/htdocs/index.html
+
+---
+
+DOCKER COMPOSE
+
+docker compose up
+docker compose up -d
+docker compose down
+docker compose ps
+docker compose build
+
+---
+
+DOCKER SWARM
+
+docker info
+docker swarm init
+docker node ls
+
+---
+
+Service Commands
+
+docker service create nginx
+docker service ls
+docker service ps <id>
+docker service update <id> --replicas 3
+docker service scale nginx-service=10
+docker service rm nginx-service
+
+---
+
+TRIVY SECURITY SCAN
+
+docker run aquasec/trivy
+docker run --rm -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy:latest image your-image
+
+---
+

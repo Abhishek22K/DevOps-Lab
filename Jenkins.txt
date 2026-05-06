@@ -1,0 +1,230 @@
+INSTALLATION (Ubuntu)
+
+# After installing Jenkins
+cat /var/lib/jenkins/secrets/initialAdminPassword
+
+👉 Open in browser:
+
+http://localhost:8080
+
+---
+
+HELLO JENKINS (FREESTYLE JOB)
+
+Command:
+
+echo "Hello Jenkins!"
+
+---
+
+Variables Example:
+
+NAME="C-DAC"
+echo "Hello, $NAME. Current date and time is $(date)."
+
+---
+
+Write Output to File:
+
+NAME="C-DAC"
+echo "Hello, $NAME. Current date and time is $(date)." > /tmp/info
+cat /tmp/info
+
+---
+
+PIPELINE JOB (BASIC)
+
+pipeline {
+    agent any
+    stages {
+        stage('Hello') {
+            steps {
+                echo 'Hello World'
+            }
+        }
+    }
+}
+
+---
+
+PIPELINE SHELL COMMANDS
+
+sh 'mkdir -p assemble'
+sh 'touch assemble/computer.txt'
+sh 'echo "Motherboard" >> assemble/computer.txt'
+sh 'cat assemble/computer.txt'
+sh 'echo "Display" >> assemble/computer.txt'
+sh 'cat assemble/computer.txt'
+sh 'echo "CPU" >> assemble/computer.txt'
+sh 'cat assemble/computer.txt'
+
+---
+
+🔌 PLUGINS INSTALLATION
+
+- GitHub Integration
+- Docker Pipeline
+
+(No commands, done via UI)
+
+---
+
+JENKINS + GITHUB
+
+Clone Repo & Create Script
+
+cd ~
+git clone <repo-url>
+cd <repo>
+nano say_hello.sh
+chmod u+x say_hello.sh
+
+---
+
+Git Commands
+
+git config --global user.name "Your Name"
+git config --global user.email "your@email.com"
+git add say_hello.sh
+git commit -m "First commit"
+git log
+git push origin main
+
+---
+
+Jenkins Build Step Command
+
+./say_hello.sh
+
+---
+
+POLL SCM SCHEDULE
+
+* * * * *       # Every minute
+0 * * * *       # Every hour
+0 0 * * *       # Daily
+*/5 * * * *     # Every 5 minutes
+0 8 * * 1       # Monday 8 AM
+
+---
+
+JENKINS + DOCKER SETUP
+
+sudo usermod -aG docker jenkins
+sudo systemctl restart jenkins
+
+---
+
+JENKINS + DOCKER PROJECT
+
+cd ~
+git clone <repo-url>
+cd docker_Jenkins_first
+nano Jenkinsfile
+nano hello.py
+nano Dockerfile
+
+git add .
+git commit -m "Jenkins with Docker"
+git push origin main
+
+---
+
+JENKINSFILE (DOCKER BUILD & RUN)
+
+pipeline {
+    agent any
+
+    environment {
+        DOCKER_IMAGE = 'hello-world-python:latest'
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                git branch: 'main', url: 'https://github.com/...'
+            }
+        }
+
+        stage('Docker Build') {
+            steps {
+                sh "docker build -t ${DOCKER_IMAGE} ."
+            }
+        }
+
+        stage('Docker Run') {
+            steps {
+                sh "docker run --rm ${DOCKER_IMAGE}"
+            }
+        }
+    }
+}
+
+---
+
+DOCKER HUB (FROM JENKINS)
+
+docker login
+docker tag my-image username/my-image:1.0
+docker push username/my-image:1.0
+
+---
+
+JENKINS CREDENTIALS
+
+(Add via UI – no commands)
+
+---
+
+DOCKER PERMISSION FIX
+
+sudo groupadd docker
+sudo usermod -aG docker jenkins
+sudo chmod 777 /var/run/docker.sock
+sudo systemctl restart jenkins
+
+---
+
+FULL CI/CD PIPELINE (NGINX)
+
+pipeline {
+    agent any
+
+    environment {
+        DOCKER_IMAGE = 'mynginx/webapp'
+    }
+
+    stages {
+        stage('Clone') {
+            steps {
+                git url: 'https://github.com/...'
+            }
+        }
+
+        stage('Build') {
+            steps {
+                sh 'docker build -t $DOCKER_IMAGE .'
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                sh 'docker rm -f webapp-container || true'
+                sh 'docker run -d -p 80:80 --name webapp-container $DOCKER_IMAGE'
+            }
+        }
+    }
+}
+
+---
+
+DOCKER COMMANDS USED IN PIPELINE
+
+docker build -t image .
+docker run -d -p 80:80 image
+docker rm -f container
+docker push image
+docker pull image
+
+---
+

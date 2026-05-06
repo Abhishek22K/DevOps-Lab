@@ -1,0 +1,134 @@
+Create Repository
+
+1. Go to GitHub
+2. Click "+" → New Repository
+3. Enter details
+4. Click Create
+
+---
+
+COMPLETE GIT COMMANDS
+
+Configuration
+
+git config --global user.name "Your Name"
+git config --global user.email "your@email.com"
+
+---
+
+Repository Setup
+
+git clone https://github.com/username/repo.git
+cd repo
+
+---
+
+Basic Workflow Commands
+
+git add file_name
+git add .
+git commit -m "message"
+git push origin main
+
+---
+
+Status & History
+
+git status          # Show current status
+git log             # Show commit history
+git diff            # Show file differences
+
+---
+
+Remote Operations
+
+git push origin main        # Push changes
+git pull origin main        # Fetch + merge
+git fetch origin            # Fetch only
+git remote -v               # Show remote repos
+
+---
+
+Undo & Remove
+
+git reset file_name         # Unstage file
+git rm file_name            # Remove file
+
+---
+
+Stash (Temporary Save)
+
+git stash
+git stash pop
+
+---
+
+BRANCHING COMMANDS
+
+Create Branch
+
+git branch branch_name
+git checkout -b branch_name
+
+---
+
+Switch Branch
+
+git checkout branch_name
+
+---
+
+Merge Branch
+
+git merge branch_name
+
+---
+
+Delete Branch
+
+git branch -d branch_name
+git push origin --delete branch_name
+
+---
+
+Push Branch
+
+git push origin branch_name
+
+---
+
+MODERN COMMANDS (SWITCH)
+
+git switch branch_name
+git switch -c branch_name
+git switch main
+git switch -
+git switch --detach commit_id
+
+---
+
+MERGE CONFLICT HANDLING
+
+# After conflict occurs:
+nano file_name      # Edit manually
+
+git add file_name
+git commit -m "Conflict resolved"
+
+---
+
+FULL WORKFLOW EXAMPLE
+
+nano hello.py
+git add hello.py
+git commit -m "first commit"
+git push origin main
+
+---
+
+KEY FLOW
+
+Workspace → Staging → Local Repo → Remote Repo
+
+---
+

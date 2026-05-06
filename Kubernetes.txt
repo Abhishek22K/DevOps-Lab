@@ -1,0 +1,293 @@
+INSTALLATION (MINIKUBE)
+
+curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
+sudo install minikube-linux-amd64 /usr/local/bin/minikube
+
+minikube start --driver=docker
+minikube kubectl -- get nodes
+
+echo 'alias kubectl="minikube kubectl --"' >> ~/.bashrc
+source ~/.bashrc
+
+---
+
+POD COMMANDS
+
+kubectl run my-nginx --image nginx
+kubectl get pods
+kubectl get pods -o wide
+
+---
+
+DELETE POD
+
+kubectl delete pod my-nginx
+
+---
+
+DEPLOYMENT COMMANDS
+
+kubectl create deployment my-nginx --image nginx
+kubectl get pods
+kubectl get all
+kubectl delete deployment my-nginx
+
+---
+
+SCALE DEPLOYMENT
+
+kubectl create deployment my-apache --image httpd
+kubectl scale deployment my-apache --replicas 4
+kubectl get pods
+kubectl get deployments
+kubectl get rs
+
+---
+
+SERVICE COMMANDS
+
+kubectl expose deployment my-apache --type=NodePort --port=80
+kubectl get svc
+minikube service my-nginx
+
+---
+
+RUN POD USING YAML
+
+mkdir ~/mypods
+cd ~/mypods
+nano pod_1.yml
+
+kubectl apply -f pod_1.yml
+kubectl get pods
+kubectl get pods -o wide
+
+---
+
+POD OPERATIONS
+
+kubectl get pods
+kubectl get pod k8sdemo-pod -o wide
+kubectl get pod k8sdemo-pod -o yaml
+kubectl describe pod k8sdemo-pod
+kubectl logs k8sdemo-pod
+kubectl delete k8sdemo-pod
+kubectl delete -f pod_1.yml
+
+---
+
+ACCESS POD
+
+Port Forward
+
+kubectl port-forward pod/k8sdemo-pod 8080:8080
+
+Exec Inside Pod
+
+kubectl exec -it k8sdemo-pod -- sh
+
+---
+
+DEPLOYMENT WITH YAML
+
+kubectl delete -f pod_1.yml
+
+nano pod_2.yml
+kubectl apply -f pod_2.yml
+
+kubectl port-forward deployment/k8sdemo-deployment 8080:8080
+
+---
+
+REPLICASET & SERVICE
+
+kubectl create deployment my-apache --image httpd
+kubectl scale deployment my-apache --replicas 4
+kubectl expose deployment my-apache --type=NodePort --port=80
+kubectl get svc
+
+---
+
+CLUSTERIP SERVICE
+
+kubectl apply -f pod_4.yml
+
+kubectl run testpod --image=busybox -it --rm -- /bin/sh
+wget -qO- http://k8sdemo-service:80
+
+kubectl port-forward service/k8sdemo-service 9090:80
+
+---
+
+NODEPORT SERVICE
+
+kubectl apply -f pod_5.yml
+minikube ip
+
+👉 Access:
+
+http://<MINIKUBE-IP>:30080
+
+---
+
+LOADBALANCER SERVICE
+
+kubectl apply -f pod_6.yml
+kubectl get svc
+minikube service k8sdemo-service
+
+---
+
+ROLLING UPDATE
+
+cd ~
+git clone https://github.com/newdelthis/rolling_initial.git
+cd rolling_initial
+
+kubectl apply -f deployment.yml
+kubectl apply -f service.yml
+minikube service cdac-service
+
+nano deployment.yml
+kubectl apply -f deployment.yml
+
+---
+
+ROLLING UPDATE (WITH DOCKER)
+
+git clone https://github.com/newdelthis/rolling_initial.git
+cd rolling_initial
+
+docker build -t yourdockerhub/rolling:1.0 .
+docker push yourdockerhub/rolling:1.0
+
+kubectl apply -f deployment.yml
+kubectl apply -f service.yml
+minikube service cdac-service
+
+---
+
+UPDATE IMAGE
+
+git clone https://github.com/newdelthis/rolling_final.git
+cd rolling_final
+
+docker build -t yourdockerhub/rolling:2.0 .
+docker push yourdockerhub/rolling:2.0
+
+kubectl set image deployment/cdac-demo cdac-container=yourdockerhub/rolling:2.0
+
+---
+
+FULL APP DEPLOYMENT
+
+git clone https://github.com/newdelthis/k8sweb.git
+git clone https://github.com/newdelthis/k8ssql.git
+
+kubectl apply -f database.yml
+kubectl apply -f webapp.yaml
+
+minikube service python-webapp-service
+
+---
+
+BUILD & PUSH IMAGE
+
+docker build -t newdelthis/student-app:1.0 .
+docker push newdelthis/student-app:1.0
+
+---
+
+APPLY YAML
+
+microk8s kubectl apply -f student-app.yaml
+
+---
+
+CLEANUP
+
+microk8s kubectl delete -f student-app.yaml
+
+---
+
+LOCAL TEST (WITHOUT DOCKER)
+
+sudo apt update
+sudo apt install python3-pip
+pip install flask
+
+python3 app.py
+
+---
+
+DOCKER TEST
+
+docker build -t flask-docker-example .
+docker run -d -p 5000:5000 flask-docker-example
+
+---
+
+K8s DEPLOYMENT (LOCAL)
+
+microk8s enable registry
+
+docker tag flask-docker-example localhost:32000/flask-docker-example:latest
+docker push localhost:32000/flask-docker-example:latest
+
+microk8s kubectl apply -f deployment.yaml
+microk8s kubectl apply -f service.yaml
+
+microk8s kubectl port-forward service/flask-service 8080:80
+
+---
+
+AWS K8s SETUP
+
+curl -LO https://dl.k8s.io/release/stable.txt
+chmod +x kubectl
+sudo mv kubectl /usr/local/bin/
+
+curl -L https://github.com/weaveworks/eksctl/releases/latest/download/eksctl.tar.gz -o eksctl.tar.gz
+tar -xzf eksctl.tar.gz -C /usr/local/bin
+
+---
+
+CREATE CLUSTER
+
+eksctl create cluster --name my-ditiss-cluster --region us-east-1 --node-type t3.medium --nodes 2
+aws eks --region us-east-1 update-kubeconfig --name my-ditiss-cluster
+kubectl get nodes
+
+---
+
+PUSH IMAGE (AWS)
+
+docker login
+docker tag flask-docker-example newdelthis/flask-docker-example:1.0
+docker push newdelthis/flask-docker-example:1.0
+
+---
+
+DEPLOY ON AWS
+
+kubectl apply -f flask-deployment.yaml
+kubectl get pods
+kubectl logs <pod-name>
+
+kubectl apply -f flask-service.yaml
+kubectl get services
+
+---
+
+CLEANUP SCRIPT (AWS)
+
+for cluster in $(aws eks list-clusters --region us-east-1 --query "clusters[]" --output text); do
+  for nodegroup in $(aws eks list-nodegroups --cluster-name $cluster --region us-east-1 --query "nodegroups[]" --output text); do
+    aws eks delete-nodegroup --cluster-name $cluster --nodegroup-name $nodegroup --region us-east-1
+  done
+  aws eks delete-cluster --name $cluster --region us-east-1
+done
+
+---
+
+
