@@ -132,6 +132,14 @@ docker run -d \
 -p 9001:80 \
 -v $(pwd):/var/www \
 kstaken/apache2
+
+OR
+
+docker run -d \
+--name apache_container \
+-p 9001:80 \
+-v $(pwd):/usr/local/apache2/htdocs/ \
+httpd
 ```
 
 
