@@ -1,0 +1,404 @@
+# AWS Practical: Secure VPC Architecture with Bastion Host
+
+## Question
+
+Create a VPC named `Lab_VPC_<PRN>` with CIDR block `10.0.0.0/16`.
+
+Create:
+
+* Public Subnet: `10.0.1.0/24`
+* Private Subnet: `10.0.2.0/24`
+
+Attach an Internet Gateway and configure route tables so that only the Public Subnet has Internet access.
+
+Launch:
+
+* One EC2 in Public Subnet (Bastion Host)
+* One EC2 in Private Subnet
+
+Configure Security Groups so that:
+
+* Public EC2 is accessible from local machine using SSH.
+* Private EC2 is accessible only from Public EC2.
+
+Create a file containing your PRN number on Public EC2, transfer it securely to Private EC2 and verify the contents.
+
+
+
+# Step 1: Create VPC
+
+AWS Console → VPC → Create VPC
+
+```text
+Name: Lab_VPC_<PRN>
+CIDR: 10.0.0.0/16
+```
+
+---
+
+# Step 2: Create Public Subnet
+
+```text
+Name: Public-Subnet
+CIDR: 10.0.1.0/24
+```
+
+---
+
+# Step 3: Create Private Subnet
+
+```text
+Name: Private-Subnet
+CIDR: 10.0.2.0/24
+```
+
+---
+
+# Step 4: Create Internet Gateway
+
+```text
+Name: Lab-IGW
+```
+
+Attach to:
+
+```text
+Lab_VPC_<PRN>
+```
+
+---
+
+# Step 5: Create Public Route Table
+
+Create Route Table:
+
+```text
+Public-RT
+```
+
+Add Route:
+
+```text
+Destination: 0.0.0.0/0
+Target: Internet Gateway
+```
+
+Associate:
+
+```text
+Public-Subnet
+```
+
+---
+
+# Step 6: Configure Private Route Table
+
+Associate:
+
+```text
+Private-Subnet
+```
+
+Do NOT add:
+
+```text
+0.0.0.0/0 → Internet Gateway
+```
+
+Result:
+
+```text
+Private subnet has no direct Internet access.
+```
+
+---
+
+# Step 7: Create Bastion Security Group
+
+Name:
+
+```text
+Bastion-SG
+```
+
+Inbound Rule:
+
+| Type | Port | Source |
+| ---- | ---- | ------ |
+| SSH  | 22   | My IP  |
+
+Outbound Rule:
+
+| Type        | Destination |
+| ----------- | ----------- |
+| All Traffic | 0.0.0.0/0   |
+
+---
+
+# Step 8: Create Private Security Group
+
+Name:
+
+```text
+Private-SG
+```
+
+Inbound Rule:
+
+| Type | Port | Source     |
+| ---- | ---- | ---------- |
+| SSH  | 22   | Bastion-SG |
+
+Outbound Rule:
+
+| Type        | Destination |
+| ----------- | ----------- |
+| All Traffic | 0.0.0.0/0   |
+
+---
+
+# Step 9: Launch Public EC2
+
+Configuration:
+
+```text
+Name: Public-EC2
+AMI: Amazon Linux 2023
+Instance Type: t2.micro
+Key Pair: public
+```
+
+Network:
+
+```text
+VPC: Lab_VPC_<PRN>
+Subnet: Public-Subnet
+Auto Assign Public IP: Enable
+Security Group: Bastion-SG
+```
+
+---
+
+# Step 10: Launch Private EC2
+
+IMPORTANT:
+
+Use SAME Key Pair as Public EC2.
+
+```text
+Key Pair: public
+```
+
+Network:
+
+```text
+VPC: Lab_VPC_<PRN>
+Subnet: Private-Subnet
+Auto Assign Public IP: Disable
+Security Group: Private-SG
+```
+
+---
+
+# Step 11: SSH from Windows to Public EC2
+
+Find Public IPv4 Address.
+
+PowerShell:
+
+```powershell
+ssh -i "D:\Users\ABHISHEK KUMAR\Downloads\public.pem" ec2-user@65.0.87.192
+```
+
+Expected:
+
+```bash
+[ec2-user@ip-10-0-1-x ~]$
+```
+
+---
+
+# Windows Permission Fix
+
+If error appears:
+
+```text
+UNPROTECTED PRIVATE KEY FILE
+```
+
+Run:
+
+```powershell
+icacls "D:\Users\ABHISHEK KUMAR\Downloads\public.pem" /inheritance:r
+
+icacls "D:\Users\ABHISHEK KUMAR\Downloads\public.pem" /grant:r "Abhishek:(R)"
+
+icacls "D:\Users\ABHISHEK KUMAR\Downloads\public.pem" /remove "Authenticated Users" "Users" "Everyone"
+```
+
+Then SSH again.
+
+---
+
+# Step 12: Copy PEM to Public EC2
+
+Open new PowerShell window:
+
+```powershell
+scp -i "D:\Users\ABHISHEK KUMAR\Downloads\public.pem" "D:\Users\ABHISHEK KUMAR\Downloads\public.pem" ec2-user@65.0.87.192:/home/ec2-user/
+```
+
+Verify:
+
+```bash
+ls -l public.pem
+```
+
+Fix permissions:
+
+```bash
+chmod 400 public.pem
+```
+
+Verify:
+
+```bash
+ls -l public.pem
+```
+
+Output:
+
+```text
+-r-------- public.pem
+```
+
+---
+
+# Step 13: Find Private EC2 IP
+
+AWS Console → Instances → Private-EC2
+
+Example:
+
+```text
+10.0.2.90
+```
+
+---
+
+# Step 14: SSH Public EC2 → Private EC2
+
+```bash
+ssh -i public.pem ec2-user@10.0.2.90
+```
+
+Expected:
+
+```bash
+[ec2-user@ip-10-0-2-x ~]$
+```
+
+---
+
+# Common Mistake
+
+If Private EC2 was launched using a different key pair:
+
+```text
+Permission denied (publickey)
+```
+
+Solution:
+
+```text
+Terminate Private EC2
+Launch new Private EC2
+Use SAME key pair as Public EC2
+```
+
+---
+
+# Step 15: Create PRN File
+
+On Public EC2:
+
+```bash
+echo "PRN: 240340120001" > prn.txt
+```
+
+Verify:
+
+```bash
+cat prn.txt
+```
+
+Output:
+
+```text
+PRN: 240340120001
+```
+
+---
+
+# Step 16: Transfer File
+
+```bash
+scp -i public.pem prn.txt ec2-user@10.0.2.90:/home/ec2-user/
+```
+
+---
+
+# Step 17: Verify File
+
+Login to Private EC2:
+
+```bash
+ssh -i public.pem ec2-user@10.0.2.90
+```
+
+Check:
+
+```bash
+cat prn.txt
+```
+
+Expected:
+
+```text
+PRN: 240340120001
+```
+
+---
+
+# Verification
+
+## SSH Path
+
+```text
+Windows PowerShell
+      |
+      v
+Public EC2
+      |
+      v
+Private EC2
+```
+
+## File Transfer
+
+```text
+prn.txt successfully copied from Public EC2 to Private EC2
+```
+
+## Security Validation
+
+* Public EC2 accessible only from local machine.
+* Private EC2 inaccessible directly from Internet.
+* Private EC2 accessible only through Bastion Host.
+* Secure file transfer verified.
+
+---
+
+# Conclusion
+
+Successfully implemented a secure AWS VPC architecture using a Bastion Host. SSH access from Local Machine to Public EC2 and then to Private EC2 was verified. Secure file transfer between instances was completed successfully.
