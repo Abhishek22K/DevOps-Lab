@@ -1,0 +1,284 @@
+AWS Practical: Launch Ubuntu EC2 and Configure Apache Web Server
+
+Question
+
+Launch an Ubuntu EC2 instance named Lab_Q1_Apache and configure the security group to allow:
+
+- SSH (Port 22)
+- HTTP (Port 80)
+
+Install Apache2 Web Server and create a webpage at:
+
+/var/www/html/index.html
+
+The webpage should display your PRN number.
+
+Verify that the website is accessible using the EC2 instance's Public IP Address.
+
+---
+
+
+
+Step 1: Launch Ubuntu EC2 Instance
+
+Navigate to:
+
+AWS Console → EC2 → Launch Instance
+
+Configuration:
+
+Name: Lab_Q1_Apache
+AMI: Ubuntu Server 24.04 LTS
+Instance Type: t2.micro
+
+Create Key Pair:
+
+apache-key
+
+Download:
+
+apache-key.pem
+
+---
+
+Step 2: Configure Security Group
+
+Create Security Group:
+
+Apache-SG
+
+Inbound Rules:
+
+Type| Port| Source
+SSH| 22| My IP
+HTTP| 80| Anywhere (0.0.0.0/0)
+
+Outbound Rules:
+
+Type| Destination
+All Traffic| 0.0.0.0/0
+
+Launch Instance.
+
+---
+
+Step 3: Obtain Public IP
+
+Navigate:
+
+EC2 → Instances → Lab_Q1_Apache
+
+Copy:
+
+Public IPv4 Address
+
+Example:
+
+13.233.xxx.xxx
+
+---
+
+Step 4: Configure PEM File Permissions (Windows)
+
+Open PowerShell as Administrator.
+
+Run:
+
+icacls "D:\Users\ABHISHEK KUMAR\Downloads\apache-key.pem" /inheritance:r
+
+icacls "D:\Users\ABHISHEK KUMAR\Downloads\apache-key.pem" /grant:r "Abhishek:(R)"
+
+icacls "D:\Users\ABHISHEK KUMAR\Downloads\apache-key.pem" /remove "Authenticated Users" "Users" "Everyone"
+
+---
+
+Step 5: Connect to Ubuntu EC2
+
+Open PowerShell.
+
+Command:
+
+ssh -i "D:\Users\ABHISHEK KUMAR\Downloads\apache-key.pem" ubuntu@<PUBLIC-IP>
+
+Example:
+
+ssh -i "D:\Users\ABHISHEK KUMAR\Downloads\apache-key.pem" ubuntu@13.233.xxx.xxx
+
+Accept host key:
+
+yes
+
+Verify login:
+
+hostname
+
+Expected:
+
+ip-172-31-x-x
+
+---
+
+Step 6: Update Ubuntu Packages
+
+sudo apt update
+
+---
+
+Step 7: Install Apache2
+
+sudo apt install apache2 -y
+
+Verify:
+
+sudo systemctl status apache2
+
+Expected:
+
+active (running)
+
+---
+
+Step 8: Enable Apache Service
+
+sudo systemctl enable apache2
+
+Start Apache:
+
+sudo systemctl start apache2
+
+---
+
+Step 9: Create Web Page
+
+Open index.html:
+
+sudo nano /var/www/html/index.html
+
+Add:
+
+<html>
+<head>
+<title>AWS Apache Practical</title>
+</head>
+<body>
+<h1>PRN: YOUR_PRN_NUMBER</h1>
+</body>
+</html>
+
+Example:
+
+<html>
+<head>
+<title>AWS Apache Practical</title>
+</head>
+<body>
+<h1>PRN: 240340120001</h1>
+</body>
+</html>
+
+Save:
+
+CTRL + O
+ENTER
+CTRL + X
+
+---
+
+Alternative Method (Single Command)
+
+echo "<h1>PRN: 240340120001</h1>" | sudo tee /var/www/html/index.html
+
+---
+
+Step 10: Verify File
+
+cat /var/www/html/index.html
+
+Expected:
+
+<h1>PRN: 240340120001</h1>
+
+---
+
+Step 11: Test Website from Browser
+
+Open Chrome.
+
+Visit:
+
+http://<PUBLIC-IP>
+
+Example:
+
+http://13.233.xxx.xxx
+
+Expected Output:
+
+PRN: 240340120001
+
+---
+
+Verification
+
+Apache Service
+
+sudo systemctl status apache2
+
+Result:
+
+active (running)
+
+---
+
+Website Access
+
+http://<PUBLIC-IP>
+
+Displays:
+
+PRN: YOUR_PRN_NUMBER
+
+---
+
+Screenshots to Capture
+
+1. EC2 Instance Running
+2. Security Group Rules
+3. SSH Login from PowerShell
+4. Apache Installation
+5. index.html Content
+6. Website Opened in Browser
+
+---
+
+Viva Questions
+
+What is Apache?
+
+Apache is an open-source web server used to host websites.
+
+What is Port 80?
+
+Port 80 is the default HTTP port.
+
+What is Port 22?
+
+Port 22 is used for SSH remote login.
+
+Where is the default Apache webpage stored?
+
+/var/www/html/index.html
+
+Command to start Apache?
+
+sudo systemctl start apache2
+
+Command to check Apache status?
+
+sudo systemctl status apache2
+
+---
+
+Conclusion
+
+Successfully launched an Ubuntu EC2 instance, configured SSH and HTTP access, installed Apache2 web server, created a webpage displaying the PRN number, and verified successful website access through the EC2 Public IP address.
