@@ -1,0 +1,337 @@
+Docker Practical: Docker Image Tag Management
+
+Question
+
+Create a Docker image using Ubuntu 22.04, install curl, build the image with multiple tags, verify image creation, run a container, and manage image tags.
+
+---
+
+Environment
+
+Item| Value
+Operating System| Windows
+Terminal| PowerShell
+Container Platform| Docker Desktop
+Base Image| ubuntu:22.04
+
+---
+
+Step 1: Verify Docker Installation
+
+Open PowerShell.
+
+Check Docker version:
+
+docker --version
+
+Expected Output:
+
+Docker version xx.xx.xx
+
+Verify Docker service:
+
+docker ps
+
+---
+
+Step 2: Create Project Directory
+
+mkdir dockerQ3
+cd dockerQ3
+
+Verify:
+
+pwd
+
+Example:
+
+C:\Users\Abhishek\dockerQ3
+
+---
+
+Step 3: Create Dockerfile
+
+Create Dockerfile:
+
+notepad Dockerfile
+
+Add the following content:
+
+FROM ubuntu:22.04
+
+RUN apt-get update && apt-get install -y curl
+
+CMD ["/bin/bash"]
+
+Save and close.
+
+---
+
+Step 4: Verify Dockerfile
+
+Display file contents:
+
+type Dockerfile
+
+Expected Output:
+
+FROM ubuntu:22.04
+
+RUN apt-get update && apt-get install -y curl
+
+CMD ["/bin/bash"]
+
+---
+
+Step 5: Build Docker Image
+
+Build image with tag:
+
+docker build -t ubuntu:latest .
+
+Expected Output:
+
+Successfully built <image-id>
+Successfully tagged ubuntu:latest
+
+---
+
+Step 6: List Docker Images
+
+docker images
+
+Expected Output:
+
+REPOSITORY   TAG      IMAGE ID
+ubuntu       latest   xxxxxxxx
+
+Verify:
+
+ubuntu:latest
+
+exists.
+
+---
+
+Step 7: Run Container and Verify curl
+
+Start container:
+
+docker run --rm ubuntu:latest curl --version
+
+Expected Output:
+
+curl 7.xx.xx
+Protocols: ...
+Features: ...
+
+This confirms curl was installed successfully.
+
+---
+
+Alternative Interactive Verification
+
+Run container:
+
+docker run -it ubuntu:latest bash
+
+Inside container:
+
+curl --version
+
+Exit:
+
+exit
+
+---
+
+Step 8: Create Additional Tags
+
+Create tag:
+
+docker tag ubuntu:latest ubuntu:v1.0
+
+Create another tag:
+
+docker tag ubuntu:latest ubuntu:stable
+
+---
+
+Step 9: Verify Tags
+
+List images:
+
+docker images
+
+Expected Output:
+
+REPOSITORY   TAG      IMAGE ID
+
+ubuntu       latest   abc123
+ubuntu       v1.0     abc123
+ubuntu       stable   abc123
+
+Observe:
+
+All tags have the same IMAGE ID.
+
+This means all tags point to the same image.
+
+---
+
+Step 10: Remove Tag ubuntu:stable
+
+Remove tag:
+
+docker rmi ubuntu:stable
+
+Expected Output:
+
+Untagged: ubuntu:stable
+
+---
+
+Step 11: Verify Remaining Tags
+
+List images again:
+
+docker images
+
+Expected Output:
+
+REPOSITORY   TAG      IMAGE ID
+
+ubuntu       latest   abc123
+ubuntu       v1.0     abc123
+
+Verify:
+
+ubuntu:latest
+ubuntu:v1.0
+
+still exist.
+
+Both should have the same IMAGE ID.
+
+---
+
+Verification Commands
+
+Show Images
+
+docker images
+
+---
+
+Show Running Containers
+
+docker ps
+
+---
+
+Show All Containers
+
+docker ps -a
+
+---
+
+Inspect Image
+
+docker inspect ubuntu:latest
+
+---
+
+Expected Result
+
+Before deleting stable tag:
+
+ubuntu:latest
+ubuntu:v1.0
+ubuntu:stable
+
+After deleting stable tag:
+
+ubuntu:latest
+ubuntu:v1.0
+
+Both tags reference the same image.
+
+---
+
+Screenshots to Capture
+
+1. Docker version
+2. Dockerfile content
+3. Successful image build
+4. docker images showing ubuntu:latest
+5. curl --version output
+6. docker images showing:
+   - ubuntu:latest
+   - ubuntu:v1.0
+   - ubuntu:stable
+7. Removal of ubuntu:stable
+8. Final docker images output
+
+---
+
+Viva Questions
+
+What is a Docker Image?
+
+A read-only template used to create containers.
+
+---
+
+What is a Docker Container?
+
+A running instance of a Docker image.
+
+---
+
+What is an Image Tag?
+
+A label used to identify different versions of the same image.
+
+Example:
+
+ubuntu:latest
+ubuntu:v1.0
+ubuntu:stable
+
+---
+
+Command to Build an Image?
+
+docker build -t ubuntu:latest .
+
+---
+
+Command to Create a Tag?
+
+docker tag ubuntu:latest ubuntu:v1.0
+
+---
+
+Command to Remove a Tag?
+
+docker rmi ubuntu:stable
+
+---
+
+Does deleting a tag delete the image?
+
+No.
+
+The image remains available as long as at least one tag references it.
+
+---
+
+Command to View Images?
+
+docker images
+
+---
+
+Conclusion
+
+Successfully created a Docker image using Ubuntu 22.04, installed curl, built the image as ubuntu:latest, verified curl installation, created additional tags ubuntu:v1.0 and ubuntu:stable, removed the stable tag, and verified that ubuntu:latest and ubuntu:v1.0 continued to reference the same Docker image.
