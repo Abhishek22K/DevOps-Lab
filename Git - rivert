@@ -1,0 +1,365 @@
+Git Practical: Commit History and Revert Operations
+
+Question
+
+Create a Git repository named Lab_Q4 and create a branch named main.
+
+Create a file named:
+
+Exam_details_<PRN>.txt
+
+Perform the following:
+
+1. Add PRN number and initial message → First Commit
+2. Add Full Name → Second Commit
+3. Add Welcome Message and Current Date → Third Commit
+4. Display compact commit history
+5. Revert last two commits while preserving history
+6. Verify file content matches first commit
+7. Display complete commit history
+8. Explain difference between original commits and revert commits
+
+---
+
+Environment
+
+Item| Value
+OS| Windows
+Terminal| PowerShell
+Tool| Git
+
+---
+
+Step 1: Verify Git Installation
+
+Open PowerShell:
+
+git --version
+
+Expected Output:
+
+git version 2.x.x
+
+---
+
+Step 2: Create Repository
+
+mkdir Lab_Q4
+cd Lab_Q4
+git init
+
+---
+
+Step 3: Create Main Branch
+
+git branch -M main
+
+Verify:
+
+git branch
+
+Output:
+
+* main
+
+---
+
+Step 4: Create File
+
+Create file:
+
+notepad Exam_details_<PRN>.txt
+
+Example:
+
+notepad Exam_details_240340120001.txt
+
+Add content:
+
+PRN: 240340120001
+Initial Message: Git Practical Examination
+
+Save and close.
+
+---
+
+Step 5: First Commit
+
+Add file:
+
+git add .
+
+Commit:
+
+git commit -m "First Commit - Added PRN and Initial Message"
+
+Verify:
+
+git log --oneline
+
+Example:
+
+a1b2c3d First Commit - Added PRN and Initial Message
+
+---
+
+Step 6: Modify File (Full Name)
+
+Open file:
+
+notepad Exam_details_240340120001.txt
+
+Add:
+
+Full Name: Abhishek Kumar
+
+Save file.
+
+---
+
+Step 7: Second Commit
+
+git add .
+git commit -m "Second Commit - Added Full Name"
+
+Verify:
+
+git log --oneline
+
+Example:
+
+d4e5f6g Second Commit - Added Full Name
+a1b2c3d First Commit - Added PRN and Initial Message
+
+---
+
+Step 8: Modify File Again
+
+Open file:
+
+notepad Exam_details_240340120001.txt
+
+Add:
+
+Welcome Message: Welcome to Git Practical
+Date: 08-06-2026
+
+Save file.
+
+---
+
+Step 9: Third Commit
+
+git add .
+git commit -m "Third Commit - Added Welcome Message and Date"
+
+Verify:
+
+git log --oneline
+
+Example:
+
+g7h8i9j Third Commit - Added Welcome Message and Date
+d4e5f6g Second Commit - Added Full Name
+a1b2c3d First Commit - Added PRN and Initial Message
+
+---
+
+Step 10: Display Compact Commit History
+
+Command:
+
+git log --oneline
+
+Example Output:
+
+g7h8i9j Third Commit - Added Welcome Message and Date
+d4e5f6g Second Commit - Added Full Name
+a1b2c3d First Commit - Added PRN and Initial Message
+
+---
+
+Commit Sequence
+
+Sequence| Commit
+1| First Commit - PRN and Initial Message
+2| Second Commit - Full Name
+3| Third Commit - Welcome Message and Date
+
+---
+
+Step 11: Revert Last Commit
+
+git revert HEAD --no-edit
+
+Example Output:
+
+Created revert commit
+
+---
+
+Step 12: Revert Second Commit
+
+git revert HEAD~1 --no-edit
+
+OR
+
+Get commit IDs:
+
+git log --oneline
+
+Then:
+
+git revert <Second_Commit_ID> --no-edit
+
+Example:
+
+git revert d4e5f6g --no-edit
+
+---
+
+Step 13: Verify File Content
+
+Display file:
+
+type Exam_details_240340120001.txt
+
+Expected Output:
+
+PRN: 240340120001
+Initial Message: Git Practical Examination
+
+Content now matches First Commit.
+
+---
+
+Step 14: Display Complete Commit History
+
+git log --oneline
+
+Example:
+
+x1y2z3 Revert "Second Commit - Added Full Name"
+w4v5u6 Revert "Third Commit - Added Welcome Message and Date"
+g7h8i9 Third Commit - Added Welcome Message and Date
+d4e5f6 Second Commit - Added Full Name
+a1b2c3 First Commit - Added PRN and Initial Message
+
+---
+
+Detailed Commit History
+
+git log
+
+---
+
+Verify Repository Status
+
+git status
+
+Expected:
+
+On branch main
+nothing to commit, working tree clean
+
+---
+
+Difference Between Revert and Original Commits
+
+Original Commits
+
+Original commits add or modify content.
+
+Example:
+
+First Commit  → Added PRN
+Second Commit → Added Full Name
+Third Commit  → Added Welcome Message and Date
+
+These commits move repository forward.
+
+---
+
+Revert Commits
+
+Revert commits create NEW commits that undo previous changes.
+
+Example:
+
+Revert Third Commit
+Revert Second Commit
+
+Advantages:
+
+- Preserves commit history
+- Safe for shared repositories
+- No commit deletion
+
+---
+
+Why Use Revert Instead of Reset?
+
+git revert
+
+git revert <commit-id>
+
+- Keeps history intact
+- Creates new commit
+- Safe for collaborative projects
+
+git reset
+
+git reset --hard <commit-id>
+
+- Removes commits from history
+- Dangerous after push
+- Rewrites repository history
+
+---
+
+Screenshots to Capture
+
+1. Repository Creation
+2. Branch main
+3. First Commit
+4. Second Commit
+5. Third Commit
+6. git log --oneline
+7. Revert Commits
+8. File Content After Revert
+9. Final git log
+10. git status
+
+---
+
+Viva Questions
+
+What is a Git Repository?
+
+A storage location that tracks files and their changes.
+
+What is a Commit?
+
+A snapshot of project changes.
+
+Command to view compact history?
+
+git log --oneline
+
+Difference between Revert and Reset?
+
+Revert creates a new commit to undo changes, while Reset removes commits from history.
+
+Command to check branch?
+
+git branch
+
+Command to check repository status?
+
+git status
+
+---
+
+Conclusion
+
+Successfully created a Git repository, performed three commits, viewed commit history, reverted the last two commits while preserving history, verified that the file content matched the first commit, and analyzed the difference between original commits and revert commits.
